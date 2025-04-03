@@ -1,29 +1,30 @@
-import { test, expect } from '@playwright/test'
-import { existingUsers } from '../../test-setup/localstorage.setup'
+import { expect } from '@playwright/test'
+import { test } from './login-base'
+import { LoginPage } from '../pages/login.page'
 
-test.describe.configure({ mode: 'serial' })
+test.describe('Login Form', () => {
+  let loginPage: LoginPage
 
-test.describe('login form tests', () => {
-  test('logging in works with existing account', async ({ page }) => {
-    await page.goto('localhost:8080/login')
+  test.beforeEach(async ({ page }) => {
+    loginPage = new LoginPage(page)
+    await loginPage.goto()
+  })
 
-    const existingUser = existingUsers[0]
+  test('should successfully login with valid credentials', async ({ users }) => {
+    const existingUser = users[0]
+    
+    await loginPage.login(existingUser.email, existingUser.password)
+    await loginPage.expectSuccessfulLogin()
+  })
 
-    await page
-      .locator('#root form div:nth-child(1) > div > input')
-      .pressSequentially(existingUser.email)
+  test('should show error with invalid credentials', async () => {
+    await loginPage.login('invalid@example.com', 'wrongpassword')
+    await loginPage.expectLoginError('Invalid credentials')
+  })
 
-    await page
-      .locator('#root form div:nth-child(2) > div > input')
-      .pressSequentially(existingUser.password)
-
-    // Submit button
-    const button = page.locator('form .MuiButton-sizeMedium')
-    // Click on the button
-    button.click()
-
-    // Wait for 1 second until page is fully loaded
-    await page.waitForTimeout(1000)
-    await expect(page.getByText('Log out')).toBeVisible()
+  test('should disable login button when validation fails', async () => {
+    await loginPage.emailInput.fill('invalidemail')
+    await loginPage.passwordInput.fill('123')
+    await expect(loginPage.loginButton).toBeDisabled()
   })
 })
