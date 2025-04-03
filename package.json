@@ -6,7 +6,9 @@
     "build": "tsc && vite build",
     "serve": "vite preview",
     "test:e2e": "playwright test",
-    "test:e2e:headed": "playwright test --headed"
+    "test:e2e:headed": "playwright test --headed",
+    "test:visual:generate:login": "playwright test tests/login/login.visual.test.ts --update-snapshots",
+    "test:visual:login": "playwright test tests/login/login.visual.test.ts && playwright show-report"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",

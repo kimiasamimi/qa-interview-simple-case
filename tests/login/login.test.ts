@@ -12,7 +12,7 @@ test.describe('Login Form', () => {
 
   test('should successfully login with valid credentials', async ({ users }) => {
     const existingUser = users[0]
-    
+
     await loginPage.login(existingUser.email, existingUser.password)
     await loginPage.expectSuccessfulLogin()
   })

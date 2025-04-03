@@ -5,19 +5,19 @@ export class LoginPage extends BasePage {
   readonly emailInput: Locator;
   readonly passwordInput: Locator;
   readonly loginButton: Locator;
-  readonly logoutButton: Locator;
+  readonly welcomeMessage: Locator;
 
   constructor(page: Page) {
     super(page);
     this.emailInput = page.locator('#email');
     this.passwordInput = page.locator('#password');
     this.loginButton = page.getByRole('button', { name: 'Login' });
-    this.logoutButton = page.getByText('Log out');
+    this.welcomeMessage = page.getByText(/Welcome.*/, { exact: false });
   }
 
   // Navigation
   async goto() {
-    await this.page.goto('localhost:8080/login');
+    await this.page.goto('http://localhost:8080/login');
   }
 
   // Actions
@@ -32,9 +32,17 @@ export class LoginPage extends BasePage {
     await this.passwordInput.fill(password);
   }
 
+  async submit() {
+    await this.loginButton.click();
+  }
+
   // Assertions
   async expectSuccessfulLogin() {
-    await expect(this.logoutButton).toBeVisible();
+    await expect(this.page).toHaveURL('http://localhost:8080/');
+  }
+
+  async expectWelcomeMessageDisplayed(firstName: string, lastName: string) {
+    await expect(this.welcomeMessage).toContainText(`${firstName} ${lastName}`);
   }
 
   async expectLoginError(errorMessage: string) {
